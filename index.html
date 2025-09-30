@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fenceify</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    color: #eee;
+    background: #121212;
+    overflow-x: hidden;
+  }
+
+  canvas#bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -2;
+  }
+
+  .bg-overlay {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    backdrop-filter: blur(18px) contrast(1.05);
+    z-index:-1;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 60px;
+    background: rgba(18,18,18,0.95);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    position: sticky;
+    top: 0;
+  }
+
+  header img {
+    height: 60px;
+  }
+
+  main {
+    max-width: 1300px;
+    margin: 80px auto;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    text-align: center;
+    background: linear-gradient(90deg,#ffb347,#ff5e78);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  p.subtitle {
+    text-align: center;
+    font-size: 1.3rem;
+    opacity: 0.8;
+    margin-bottom: 70px;
+  }
+
+  .pricing {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+
+  .card {
+    background: #1e1e1e;
+    border-radius: 24px;
+    padding: 50px 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    transition: transform 0.3s ease;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+  }
+
+  .card h2 {
+    margin-top: 0;
+    font-size: 2rem;
+  }
+
+  .card ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 20px;
+  }
+
+  .card ul li {
+    margin-bottom: 10px;
+    position: relative;
+    padding-left: 20px;
+  }
+
+  .card ul li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #ff5e78;
+    font-weight: bold;
+  }
+
+  .price {
+    font-size: 1.8rem;
+    margin: 25px 0;
+    color: #ff5e78;
+    font-weight: bold;
+  }
+
+  .download-btn {
+    display: inline-block;
+    background: linear-gradient(90deg,#ffb347,#ff5e78);
+    color: #fff;
+    padding: 18px 40px;
+    border-radius: 35px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.15rem;
+    text-align:center;
+    transition: transform 0.2s ease;
+  }
+
+  .download-btn:hover {
+    transform: scale(1.07);
+  }
+
+  .unavailable {
+    color: #999;
+    font-style: italic;
+  }
+
+  .screenshot {
+    perspective: 1000px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+
+  .screenshot img {
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    transition: transform 0.2s ease;
+  }
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="bg-overlay"></div>
+
+<header>
+  <img src="fencify.png" alt="Fenceify Logo">
+</header>
+
+<main>
+  <h1>Fenceify</h1>
+  <p class="subtitle">Organize your desktop with ease – clean, modern, and free.</p>
+
+  <section class="pricing">
+    <div class="card">
+      <h2>Basic</h2>
+      <p>Basic Fence Features for desktop:</p>
+      <ul>
+        <li>Desktop Fences</li>
+        <li>Rename Fences</li>
+        <li>Minimize / Maximize Fences</li>
+        <li>Color Customization</li>
+        <li>Move / Resize Fences</li>
+        <li>Quick Hide / Show Fences</li>
+      </ul>
+      <p class="price">Free</p>
+      <a href="#" class="download-btn">Download</a>
+    </div>
+    <div class="screenshot">
+      <img src="ss.png" alt="Fenceify Screenshot" id="screenshotImg">
+    </div>
+    <div class="card">
+      <h2>Premium</h2>
+      <p class="unavailable">Coming soon – not available yet.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Background animation
+  const canvas = document.getElementById('bg');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  class Particle {
+    constructor() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.radius = 2 + Math.random() * 2;
+    }
+    draw() {
+      const gradient = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+      gradient.addColorStop(0,'#ffdd00');
+      gradient.addColorStop(1,'#ff3399');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(this.x,this.y,this.radius,0,Math.PI*2);
+      ctx.fill();
+    }
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      if(this.x<0||this.x>canvas.width) this.vx*=-1;
+      if(this.y<0||this.y>canvas.height) this.vy*=-1;
+      this.draw();
+    }
+  }
+
+  function init() {
+    particles=[];
+    for(let i=0;i<80;i++){
+      particles.push(new Particle());
+    }
+  }
+
+  function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(let i=0;i<particles.length;i++){
+      particles[i].update();
+      for(let j=i+1;j<particles.length;j++){
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist<120){
+          const gradient = ctx.createLinearGradient(particles[i].x,particles[i].y,particles[j].x,particles[j].y);
+          gradient.addColorStop(0,'#ffdd00');
+          gradient.addColorStop(1,'#ff3399');
+          ctx.strokeStyle=gradient;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+
+  init();
+  animate();
+
+  const screenshot = document.getElementById('screenshotImg');
+  const container = screenshot.parentElement;
+
+  container.addEventListener('mousemove', e=>{
+    const rect = container.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const rotateX = ((y-rect.height/2)/rect.height)*15;
+    const rotateY = ((x-rect.width/2)/rect.width)*-15;
+    screenshot.style.transform=`rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+  });
+
+  container.addEventListener('mouseleave', ()=>{
+    screenshot.style.transform='rotateX(0) rotateY(0) scale(1)';
+  });
+</script>
+</body>
+</html>
